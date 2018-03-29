@@ -17,26 +17,30 @@ if [ -z "$destination" ]; then
 fi
 
 # for jq
-PATH=/usr/local/bin:$PATH
+#PATH=/usr/local/bin:$PATH
 
-payload=$(mktemp $TMPDIR/git-semver-tag-resource-request.XXXXXX)
+payload=$(mktemp $TMPDIR/git-semver-shorthash-request.XXXXXX)
 
 cat > $payload <&0
 
-input_version=$(jq -r '.version.number' < "$payload")
+#input_version=$(jq -r '.version.number' < "$payload")
 
-prepare_repository "$destination" "$payload"
+mkdir -p $destination
+prepare_repository "$destination" "$payload" > "$destination/shorthash"
 
 # bump version according to provided strategy (no strategy will simply return input version)
-bump_version "$input_version" "$payload" > "$destination/number"
-log "Version $(cat "$destination/number") written to file: <resource>/number"
+#bump_version "$input_version" "$payload" > "$destination/number"
+#log "Version $(cat "$destination/number") written to file: <resource>/number"
 
-metadata=""
-if [ -n "$input_version" ]; then
-  metadata="{ name: \"number\", value: \"$input_version\" }"
-fi
+#short_hash "$payload" > "$destination/shorthash"
+log "Short hash $(cat "$destination/shorthash") written to file: <resource>/shorthash"
 
+#metadata=""
+#if [ -n "$input_version" ]; then
+#  metadata="{ name: \"number\", value: \"$input_version\" }"
+#fi
+shorthash="$(cat "$destination/shorthash")"
 jq -n "{
-  version: $(jq '.version' < "$payload"),
-  metadata: [ $metadata ]
+  shorthash: \"$shorthash\",
+  metadata: [ { name: \"shorthash\", value: \"$shorthash\" } ]
 }" >&3

@@ -66,76 +66,82 @@ prepare_repository() {
     exit 1
   fi
 
-  if [ ! -d "$destination/.git" ]; then
-    log "Cloning $uri in $destination"
-
-    branchflag=""
-    if [ -n "$branch" ]; then
-      branchflag="--branch $branch"
-    fi
-
-    git clone --single-branch "$uri" $branchflag "$destination"
-  fi
-
-  cd "$destination"
-
-  # first remove all local tags, only remote tags are refetched later
-  git tag -l | xargs git tag -d
-  git fetch --tags
-
-  git fetch --prune
-  git reset --hard FETCH_HEAD
+  git ls-remote $uri  | grep HEAD | awk '{ print $1}' | cut -c 1-7
+#  if [ ! -d "$destination/.git" ]; then
+#    log "Cloning $uri in $destination"
+#
+#    branchflag=""
+#    if [ -n "$branch" ]; then
+#      branchflag="--branch $branch"
+#    fi
+#
+#    git clone --single-branch "$uri" $branchflag "$destination"
+#  fi
+#
+#  cd "$destination"
+#
+#  # first remove all local tags, only remote tags are refetched later
+#  git tag -l | xargs git tag -d
+#  git fetch --tags
+#
+#  git fetch --prune
+#  git reset --hard FETCH_HEAD
 }
 
-bump_version() {
-  local version="$1"
-  local payload="$2"
-
-  # build a file containing the correct tag based on a provided strategy (see README for versioning semantics)
-  bump=$(jq -r '.params.bump // ""' < "$payload")
-  pre=$(jq -r '.params.pre // ""' < "$payload")
-
-  error_patch_breaking() {
-    log "You can't have breaking changes for a patch! Commits for both are included in $version..$(git rev-parse HEAD)"
-    exit 1
-  }
-
-  if [ "$bump" == "auto" ]; then
-    log "Scanning commits for [breaking] or [patch] to auto bump current version $version"
-    # analyse commits and if it contains [breaking] or [patch] switch the bump level, default is minor
-    bump="minor"
-    messages=$(git log --pretty=%s $version..HEAD 2>/dev/null | cat)
-    if [ -n "$messages" ]; then
-      while read message; do
-        if echo "$message" | grep -Ec "\[breaking\]" > /dev/null; then
-          log "Found breaking commit message: $message"
-          if [ "$bump" == "patch" ]; then error_patch_breaking; fi
-          bump="major"
-        fi
-        if echo "$message" | grep -Ec "\[patch\]" > /dev/null; then
-          log "Found patch commit message: $message"
-          if [ "$bump" == "major" ]; then error_patch_breaking; fi
-          bump="patch"
-        fi
-      done <<< "$messages"
-    else
-      log "No messages found between $version..HEAD"
-    fi
-  fi
-
-  if [ -n "$pre" ]; then
-    if [ -z "$bump" ]; then
-      bump="release"
-    fi
-    bump="pre$bump"
-  fi
-
-  # calculate next version
-  if [ -n "$bump" ]; then
-    log "Bumping version $version with level '$bump' (and preid '$pre')"
-    semver "$version" -i "$bump" --preid "$pre"
-  else
-    log "Skipping bump because no bump level is defined"
-    echo "$version"
-  fi
+short_hash() {
+  log "test $1"
+  git ls-remote $1  | grep HEAD | awk '{ print $1}' | cut -c 1-7
 }
+
+#bump_version() {
+#  local version="$1"
+#  local payload="$2"
+#
+#  # build a file containing the correct tag based on a provided strategy (see README for versioning semantics)
+#  bump=$(jq -r '.params.bump // ""' < "$payload")
+#  pre=$(jq -r '.params.pre // ""' < "$payload")
+#
+#  error_patch_breaking() {
+#    log "You can't have breaking changes for a patch! Commits for both are included in $version..$(git rev-parse HEAD)"
+#    exit 1
+#  }
+#
+#  if [ "$bump" == "auto" ]; then
+#    log "Scanning commits for [breaking] or [patch] to auto bump current version $version"
+#    # analyse commits and if it contains [breaking] or [patch] switch the bump level, default is minor
+#    bump="minor"
+#    messages=$(git log --pretty=%s $version..HEAD 2>/dev/null | cat)
+#    if [ -n "$messages" ]; then
+#      while read message; do
+#        if echo "$message" | grep -Ec "\[breaking\]" > /dev/null; then
+#          log "Found breaking commit message: $message"
+#          if [ "$bump" == "patch" ]; then error_patch_breaking; fi
+#          bump="major"
+#        fi
+#        if echo "$message" | grep -Ec "\[patch\]" > /dev/null; then
+#          log "Found patch commit message: $message"
+#          if [ "$bump" == "major" ]; then error_patch_breaking; fi
+#          bump="patch"
+#        fi
+#      done <<< "$messages"
+#    else
+#      log "No messages found between $version..HEAD"
+#    fi
+#  fi
+#
+#  if [ -n "$pre" ]; then
+#    if [ -z "$bump" ]; then
+#      bump="release"
+#    fi
+#    bump="pre$bump"
+#  fi
+#
+#  # calculate next version
+#  if [ -n "$bump" ]; then
+#    log "Bumping version $version with level '$bump' (and preid '$pre')"
+#    semver "$version" -i "$bump" --preid "$pre"
+#  else
+#    log "Skipping bump because no bump level is defined"
+#    echo "$version"
+#  fi
+#}

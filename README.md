@@ -1,3 +1,14 @@
+
+
+
+
+docker build --tag semver .
+docker run --rm -ti -v `pwd`/assets:/opt/resource -v /tmp:/black semver bash
+echo '{ "source": {"uri": "https://github.com/EugenMayer/concourse-git-semver-tag-resource.git"} }' | /opt/resource/in black
+
+git ls-remote https://github.com/gturri/dokuJClient.git  | grep HEAD | awk '{ print $1}'
+
+
 # Git Semver Tag Resource
 
 A resource for managing a version number on a git repository by using tags.

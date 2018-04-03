@@ -66,14 +66,19 @@ prepare_repository() {
     exit 1
   fi
 
-  git ls-remote $uri  | grep HEAD | awk '{ print $1}' | cut -c 1-7
+  branchflag="HEAD"
+  if [ -n "$branch" ]; then
+    branchflag="$branch"
+  fi
+
+  git ls-remote $uri  | grep "$branchflag" | awk '{ print $1}' | cut -c 1-7
 #  if [ ! -d "$destination/.git" ]; then
 #    log "Cloning $uri in $destination"
 #
-#    branchflag=""
-#    if [ -n "$branch" ]; then
-#      branchflag="--branch $branch"
-#    fi
+#  branchflag="HEAD"
+#  if [ -n "$branch" ]; then
+#    branchflag="$branch"
+#  fi
 #
 #    git clone --single-branch "$uri" $branchflag "$destination"
 #  fi
@@ -89,8 +94,11 @@ prepare_repository() {
 }
 
 short_hash() {
-  log "test $1"
-  git ls-remote $1  | grep HEAD | awk '{ print $1}' | cut -c 1-7
+  branchflag="HEAD"
+  if [ -n "$branch" ]; then
+    branchflag="$branch"
+  fi
+  git ls-remote $1  | grep "$branchflag" | awk '{ print $1}' | cut -c 1-7
 }
 
 #bump_version() {

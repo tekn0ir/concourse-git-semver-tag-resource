@@ -25,10 +25,7 @@ prepare_repository "$destination" "$payload" > "$destination/shorthash"
 #tags=$(git tag --merged "$branch" -l --sort=version:refname "*" 2>/dev/null)
 shorthash="$(cat "$destination/shorthash")"
 
-jq -n "{
-  shorthash: \"$shorthash\",
-  metadata: [ { name: \"shorthash\", value: \"$shorthash\" } ]
-}" >&3
+jq -n "[{shorthash: \"$shorthash\"}]" >&3
 
 #if [ -z "$tags" ]; then
 #  initial_version=$(jq -r '.source.initial_version // "0.0.0"' < "$payload")

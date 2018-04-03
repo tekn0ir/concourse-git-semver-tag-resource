@@ -43,7 +43,8 @@ resources:
     private_key: {{concourse-repo-private-key}}
 ```
 
-Only `get` is suppoerted:
+
+Only `get` is supported:
 
 ``` yaml
 plan:

@@ -2,7 +2,8 @@
 
 set -e
 
-docker build --tag semver .
-docker run --rm -ti -v `pwd`/assets:/opt/resource -v /tmp:/black semver bash -c echo '{ "source": {"uri": "https://github.com/EugenMayer/concourse-git-shorthash-resource.git"} }' | /opt/resource/in black
+docker build --tag shorthash .
+docker run --rm -v `pwd`/assets:/opt/resource -v /tmp:/black shorthash "echo '{ \"source\": {\"uri\": \"https://github.com/tekn0ir/concourse-git-shorthash-resource.git\"} }' | /opt/resource/in black"
+
 
 #git ls-remote https://github.com/tekn0ir/concourse-git-shorthash-resource.git  | grep HEAD | awk '{ print $1}' | cut -c 1-7

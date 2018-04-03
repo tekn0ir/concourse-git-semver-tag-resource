@@ -19,7 +19,7 @@ fi
 # for jq
 #PATH=/usr/local/bin:$PATH
 
-payload=$(mktemp $TMPDIR/git-semver-shorthash-request.XXXXXX)
+payload=$(mktemp $TMPDIR/git-shorthash-request.XXXXXX)
 
 cat > $payload <&0
 

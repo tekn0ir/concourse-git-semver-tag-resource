@@ -19,8 +19,8 @@ fi
 # for jq
 PATH=/usr/local/bin:$PATH
 
-payload=$(mktemp $TMPDIR/git-semver-tag-resource-request.XXXXXX)
-destination=$(mktemp -d $TMPDIR/git-semver-tag-resource.XXXXXX)
+payload=$(mktemp $TMPDIR/git-shorthash-resource-request.XXXXXX)
+destination=$(mktemp -d $TMPDIR/git-shorthash-resource.XXXXXX)
 
 cat > $payload <&0
 

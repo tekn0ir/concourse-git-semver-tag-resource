@@ -16,22 +16,28 @@ payload=$TMPDIR/pipeline-discovery-resource-request
 
 cat > $payload <&0
 
-destination=$TMPDIR/git-semver-tag-resource
-
-prepare_repository "$destination" "$payload"
+destination=$TMPDIR/git-shorthash-resource
+mkdir -p $destination
+prepare_repository "$destination" "$payload" > "$destination/shorthash"
 
 # return latest tag on this branch
-branch=$(jq -r '.source.branch // ""' < "$payload")
-tags=$(git tag --merged "$branch" -l --sort=version:refname "*" 2>/dev/null)
+#branch=$(jq -r '.source.branch // ""' < "$payload")
+#tags=$(git tag --merged "$branch" -l --sort=version:refname "*" 2>/dev/null)
+shorthash="$(cat "$destination/shorthash")"
 
-if [ -z "$tags" ]; then
-  initial_version=$(jq -r '.source.initial_version // "0.0.0"' < "$payload")
-  jq -n "[{ number: \"$initial_version\" }]" >&3
-else
-  result="[]"
-  while read tag; do
-    result+=" | . + [{ number: \"$tag\" }]"
-  done <<< "$tags"
+jq -n "{
+  shorthash: \"$shorthash\",
+  metadata: [ { name: \"shorthash\", value: \"$shorthash\" } ]
+}" >&3
 
-  jq -n "$result" >&3
-fi
+#if [ -z "$tags" ]; then
+#  initial_version=$(jq -r '.source.initial_version // "0.0.0"' < "$payload")
+#  jq -n "[{ number: \"$initial_version\" }]" >&3
+#else
+#  result="[]"
+#  while read tag; do
+#    result+=" | . + [{ number: \"$tag\" }]"
+#  done <<< "$tags"
+#
+#  jq -n "$result" >&3
+#fi

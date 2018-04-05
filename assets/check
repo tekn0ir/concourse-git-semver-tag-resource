@@ -16,25 +16,21 @@ payload=$TMPDIR/pipeline-discovery-resource-request
 
 cat > $payload <&0
 
+input_version=$(jq -r '.version.ref' < "$payload")
+
 destination=$TMPDIR/git-shorthash-resource
 mkdir -p $destination
 prepare_repository "$destination" "$payload" > "$destination/shorthash"
 
 # return latest tag on this branch
-#branch=$(jq -r '.source.branch // ""' < "$payload")
+#version=$(jq -r '.version.ref // ""' < "$payload")
 #tags=$(git tag --merged "$branch" -l --sort=version:refname "*" 2>/dev/null)
 shorthash="$(cat "$destination/shorthash")"
 
-jq -n "[{shorthash: \"$shorthash\"}]" >&3
+#jq -n "[{ref: \"$shorthash\"}]" >&3
 
-#if [ -z "$tags" ]; then
-#  initial_version=$(jq -r '.source.initial_version // "0.0.0"' < "$payload")
-#  jq -n "[{ number: \"$initial_version\" }]" >&3
-#else
-#  result="[]"
-#  while read tag; do
-#    result+=" | . + [{ number: \"$tag\" }]"
-#  done <<< "$tags"
-#
-#  jq -n "$result" >&3
-#fi
+if [ "$input_version" == "$shorthash" ]; then
+  jq -n "[{}]" >&3
+else
+  jq -n "[{ref: \"$input_version\"}, {ref: \"$shorthash\"}]" >&3
+fi

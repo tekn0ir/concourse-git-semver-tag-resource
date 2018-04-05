@@ -41,6 +41,6 @@ log "Short hash $(cat "$destination/shorthash") written to file: <resource>/shor
 #fi
 shorthash="$(cat "$destination/shorthash")"
 jq -n "{
-  shorthash: \"$shorthash\",
+  version: { ref: \"$shorthash\" },
   metadata: [ { name: \"shorthash\", value: \"$shorthash\" } ]
 }" >&3

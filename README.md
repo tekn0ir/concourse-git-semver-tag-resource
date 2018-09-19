@@ -20,7 +20,7 @@ resource_types:
 
 * `uri`: *Required.* The repository URL.
 
-* `branch`: *Required.* The branch all tags were made on.
+* `branch`: *Optional.* Defaults to master.
 
 * `private_key`: *Optional.* The SSH private key to use when pulling from/pushing to to the repository.
 
@@ -32,7 +32,6 @@ resource_types:
 ### Example
 
 With the following resource configuration:
-
 ``` yaml
 resources:
 - name: master-shorthash
@@ -45,7 +44,6 @@ resources:
 
 
 Only `get` is supported:
-
 ``` yaml
 plan:
 - get: master-shorthash
